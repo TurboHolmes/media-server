@@ -274,3 +274,7 @@ services:
       - homepage.widget.type=jellyfin
       - homepage.widget.url=http://jellyfin:8096/jellyfin
       - homepage.widget.key=${JELLYFIN_API_KEY}
+
+networks:
+  default:
+    name: turbo-media-server
