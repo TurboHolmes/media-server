@@ -1,0 +1,276 @@
+services:
+  sonarr:
+    image: lscr.io/linuxserver/sonarr
+    container_name: sonarr
+    environment:
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${CONFIG_ROOT:-.}/sonarr:/config
+      - ${DATA_ROOT}:/data
+    ports:
+      - "8989:8989"
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://127.0.0.1:8989/sonarr/ping"]
+      interval: 30s
+      retries: 10
+    labels:
+      - homepage.group=Media
+      - homepage.name=Sonarr
+      - homepage.icon=sonarr.png
+      - homepage.href=/sonarr
+      - homepage.description=Series management
+      - homepage.weight=0
+      - homepage.widget.type=sonarr
+      - homepage.widget.url=http://sonarr:8989/sonarr
+      - homepage.widget.key=${SONARR_API_KEY}
+
+  radarr:
+    image: lscr.io/linuxserver/radarr
+    container_name: radarr
+    environment:
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${CONFIG_ROOT:-.}/radarr:/config
+      - ${DATA_ROOT}:/data
+    ports:
+      - "7878:7878"
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://127.0.0.1:7878/radarr/ping"]
+      interval: 30s
+      retries: 10
+    labels:
+      - homepage.group=Media
+      - homepage.name=Radarr
+      - homepage.icon=radarr.png
+      - homepage.href=/radarr
+      - homepage.description=Movies management
+      - homepage.weight=1
+      - homepage.widget.type=radarr
+      # - homepage.widget.url=http://radarr:7878/radarr
+      - homepage.widget.url=http://localhost:7878
+      - homepage.widget.key=${RADARR_API_KEY}
+
+  lidarr:
+    image: lscr.io/linuxserver/lidarr
+    container_name: lidarr
+    environment:
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${CONFIG_ROOT:-.}/lidarr:/config
+      - ${DATA_ROOT}:/data
+    ports:
+      - "8686:8686"
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://127.0.0.1:8686/lidarr/ping"]
+      interval: 30s
+      retries: 10
+    labels:
+      - homepage.group=Media
+      - homepage.name=Lidarr
+      - homepage.icon=lidarr.png
+      - homepage.href=/lidarr
+      - homepage.description=Music management
+      - homepage.weight=2
+      - homepage.widget.type=lidarr
+      - homepage.widget.url=http://lidarr:8686/lidarr
+      - homepage.widget.key=${LIDARR_API_KEY}
+    profiles:
+      - lidarr
+
+  bazarr:
+    image: lscr.io/linuxserver/bazarr
+    container_name: bazarr
+    environment:
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${CONFIG_ROOT:-.}/bazarr/config:/config
+      - ${DATA_ROOT}:/data
+    ports:
+      - "6767:6767"
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://127.0.0.1:6767/bazarr/ping"]
+      interval: 5s
+      retries: 10
+    labels:
+      - homepage.group=Download
+      - homepage.name=Bazarr
+      - homepage.icon=bazarr.png
+      - homepage.href=/bazarr
+      - homepage.description=Subtitles management
+      - homepage.weight=4
+      - homepage.widget.type=bazarr
+      - homepage.widget.url=http://bazarr:6767/bazarr
+      - homepage.widget.key=${BAZARR_API_KEY}
+
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${CONFIG_ROOT:-.}/jellyseerr:/app/config
+    ports:
+      - "5055:5055"
+    restart: always
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "wget",
+          "http://127.0.0.1:5055/api/v1/status",
+          "-qO",
+          "/dev/null",
+        ]
+      interval: 30s
+      retries: 10
+    labels:
+      - homepage.group=Media
+      - homepage.name=JellySeerr
+      - homepage.icon=jellyseerr.png
+      - homepage.href=/jellyseerr
+      - homepage.description=Content Recommendations and Request Management
+      - homepage.weight=2
+      - homepage.widget.type=jellyseerr
+      - homepage.widget.url=http://jellyseerr:5055
+      - homepage.widget.key=${JELLYSEERR_API_KEY}
+
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
+    volumes:
+      - ${CONFIG_ROOT:-.}/prowlarr:/config
+    ports:
+      - "9696:9696"
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://127.0.0.1:9696/prowlarr/ping"]
+      interval: 30s
+      retries: 10
+    labels:
+      - homepage.group=Download
+      - homepage.name=Prowlarr
+      - homepage.icon=prowlarr.png
+      - homepage.href=/prowlarr
+      - homepage.description=Indexers management
+      - homepage.weight=1
+      - homepage.widget.type=prowlarr
+      - homepage.widget.url=http://prowlarr:9696/prowlarr
+      - homepage.widget.key=${PROWLARR_API_KEY}
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:libtorrentv1
+    container_name: qbittorrent
+    environment:
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
+      - WEBUI_PORT=8080
+      - DOCKER_MODS=ghcr.io/gabe565/linuxserver-mod-vuetorrent
+    volumes:
+      - ${CONFIG_ROOT:-.}/qbittorrent:/config
+      - ${DOWNLOAD_ROOT}:/data/torrents
+    ports:
+      - "8080:8080"
+    restart: always
+    healthcheck:
+      test:
+        ["CMD", "curl", "--fail", "http://127.0.0.1:8080", "https://google.com"]
+      interval: 30s
+      retries: 10
+    labels:
+      - homepage.group=Download
+      - homepage.name=qBittorrent
+      - homepage.icon=qbittorrent.png
+      - homepage.href=/qbittorrent
+      - homepage.description=Bittorrent client
+      - homepage.weight=2
+      - homepage.widget.type=qbittorrent
+      - homepage.widget.url=http://qbittorrent:8080
+      - homepage.widget.username=${QBITTORRENT_USERNAME}
+      - homepage.widget.password=${QBITTORRENT_PASSWORD}
+
+  unpackerr:
+    image: golift/unpackerr
+    container_name: unpackerr
+    volumes:
+      - ${DOWNLOAD_ROOT}:/data/torrents
+    restart: always
+    user: ${USER_ID}:${GROUP_ID}
+    environment:
+      - TZ=${TIMEZONE}
+      - UN_SONARR_0_URL=http://sonarr:8989/sonarr
+      - UN_SONARR_0_API_KEY=${SONARR_API_KEY}
+      - UN_RADARR_0_URL=http://radarr:7878/radarr
+      - UN_RADARR_0_API_KEY=${RADARR_API_KEY}
+    security_opt:
+      - no-new-privileges:true
+
+  homepage:
+    image: ghcr.io/gethomepage/homepage:latest
+    container_name: homepage
+    environment:
+      - HOMEPAGE_VAR_TITLE=${HOMEPAGE_VAR_TITLE}
+      - HOMEPAGE_VAR_SEARCH_PROVIDER=${HOMEPAGE_VAR_SEARCH_PROVIDER}
+      - HOMEPAGE_VAR_HEADER_STYLE=${HOMEPAGE_VAR_HEADER_STYLE}
+      - HOMEPAGE_VAR_WEATHER_CITY=${HOMEPAGE_VAR_WEATHER_CITY}
+      - HOMEPAGE_VAR_WEATHER_LAT=${HOMEPAGE_VAR_WEATHER_LAT}
+      - HOMEPAGE_VAR_WEATHER_LONG=${HOMEPAGE_VAR_WEATHER_LONG}
+      - HOMEPAGE_VAR_WEATHER_TIME=${TIMEZONE}
+      - HOMEPAGE_VAR_WEATHER_UNIT=${HOMEPAGE_VAR_WEATHER_UNIT}
+    volumes:
+      - ${CONFIG_ROOT:-.}/homepage:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - ${DATA_ROOT}:/data
+    ports:
+      - "3000:3000"
+    restart: always
+    command:
+      [sh, -c, "cp -n /app/config/tpl/*.yaml /app/config && node server.js"]
+
+  jellyfin:
+    image: lscr.io/linuxserver/jellyfin
+    container_name: jellyfin
+    environment:
+      - PUID=${USER_ID}
+      - PGID=${GROUP_ID}
+      - TZ=${TIMEZONE}
+      - JELLYFIN_PublishedServerUrl=${HOSTNAME}/jellyfin
+    volumes:
+      - ${CONFIG_ROOT:-.}/jellyfin:/config
+      - ${DATA_ROOT}:/data
+    ports:
+      - "7359:7359/udp"
+      - "1900:1900/udp"
+      - "8096:8096"
+    restart: always
+    healthcheck:
+      test: ["CMD", "curl", "--fail", "http://127.0.0.1:8096/jellyfin/health"]
+      interval: 30s
+      retries: 10
+    labels:
+      - homepage.group=Media
+      - homepage.name=Jellyfin
+      - homepage.icon=jellyfin.png
+      - homepage.href=/jellyfin
+      - homepage.description=Media server
+      - homepage.weight=3
+      - homepage.widget.type=jellyfin
+      - homepage.widget.url=http://jellyfin:8096/jellyfin
+      - homepage.widget.key=${JELLYFIN_API_KEY}
